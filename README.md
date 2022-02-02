@@ -1,6 +1,6 @@
-# Getting Started with Create React App
+# Pathfinder Visualizer in 2022 React
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Live Demo at Github Pages: https://ryanmoedev.github.io/pathfinder-visualizer/
 
 ## Available Scripts
 
