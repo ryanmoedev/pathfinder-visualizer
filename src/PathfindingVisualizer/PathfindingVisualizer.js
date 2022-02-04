@@ -46,6 +46,27 @@ const PathfindingVisualizer = () => {
     return newGrid;
   };
 
+  const clear = (randomWall) => {
+    setGrid(initGrid());
+    let newGrid = grid.slice();
+    for (let i = 0; i < grid.length; i++) {
+      let row = grid[i];
+      for (let j = 0; j < row.length; j++) {
+        if (grid[i][j].isStart || grid[i][j].isFinish) continue;
+        const nodeToChange = document.getElementById(`node-${i}-${j}`);
+        if (randomWall) {
+          if (Math.random() < 0.3) {
+            newGrid = getNewGridWithWallToggled(newGrid, i, j);
+            nodeToChange.className = "node node-wall";
+          }
+        } else {
+          nodeToChange.className = "node";
+        }
+      }
+    }
+    if (randomWall) setGrid(newGrid);
+  };
+
   const handleMouseDown = (row, col) => {
     const newGrid = getNewGridWithWallToggled(grid, row, col);
     setMouseIsPressed(true);
@@ -97,18 +118,6 @@ const PathfindingVisualizer = () => {
     animateDijkstra(visitedNodesInOrder, nodesInShortestPathOrder);
   };
 
-  const clear = () => {
-    for (let i = 0; i < grid.length; i++) {
-      let row = grid[i];
-      for (let j = 0; j < row.length; j++) {
-        if (grid[i][j].isStart || grid[i][j].isFinish) continue;
-        const nodeToChange = document.getElementById(`node-${i}-${j}`);
-        nodeToChange.className = "node";
-      }
-    }
-    setGrid(initGrid());
-  };
-
   //STATES
   const [grid, setGrid] = useState(initGrid());
   const [mouseIsPressed, setMouseIsPressed] = useState(false);
@@ -124,8 +133,8 @@ const PathfindingVisualizer = () => {
       </p>
       <div className="button-ctr">
         <div className="small-button-ctr">
-          <button>Random Wall</button>
-          <button className="clear-button" onClick={() => clear()}>
+          <button onClick={() => clear(true)}>Random Wall</button>
+          <button className="clear-button" onClick={() => clear(false)}>
             Clear
           </button>
         </div>
