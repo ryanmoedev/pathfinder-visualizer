@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Node from "./Node/Node";
 import { dijkstra, getNodesInShortestPathOrder } from "../algorithms/dijkstra";
 
@@ -8,6 +8,8 @@ let start_node_row = 10;
 let start_node_col = 15;
 let finish_node_row = 10;
 let finish_node_col = 35;
+
+let ranAlgorithm = false;
 
 const PathfindingVisualizer = () => {
   const createNode = (col, row) => {
@@ -47,6 +49,7 @@ const PathfindingVisualizer = () => {
   };
 
   const clear = (randomWall) => {
+    ranAlgorithm = false;
     setGrid(initGrid());
     let newGrid = grid.slice();
     for (let i = 0; i < grid.length; i++) {
@@ -67,20 +70,59 @@ const PathfindingVisualizer = () => {
     if (randomWall) setGrid(newGrid);
   };
 
+  const getNewGridWithNewPoint = (oldGrid, newRow, newCol, oldPoint) => {
+    const newGrid = oldGrid.slice();
+    const node = newGrid[newRow][newCol];
+    const oldNode =
+      oldPoint === "start" ? newGrid[start_node_row][start_node_col] : newGrid[finish_node_row][finish_node_col];
+    const newNode = { ...node };
+    const replacementNode = { ...oldNode };
+    if (oldPoint === "start") {
+      newNode.isStart = true;
+      replacementNode.isStart = false;
+      newGrid[start_node_row][start_node_col] = replacementNode;
+      start_node_row = newRow;
+      start_node_col = newCol;
+    } else if (oldPoint === "finish") {
+      newNode.isFinish = true;
+      replacementNode.isFinish = false;
+      newGrid[finish_node_row][finish_node_col] = replacementNode;
+      finish_node_row = newRow;
+      finish_node_col = newCol;
+    }
+    newGrid[newRow][newCol] = newNode;
+    return newGrid;
+  };
+
   const handleMouseDown = (row, col) => {
-    const newGrid = getNewGridWithWallToggled(grid, row, col);
+    if (ranAlgorithm) {
+      clear(false);
+    }
+    if (grid[row][col].isStart) {
+      setGrabbed("start");
+    } else if (grid[row][col].isFinish) {
+      setGrabbed("finish");
+    } else {
+      const newGrid = getNewGridWithWallToggled(grid, row, col);
+      setGrid(newGrid);
+    }
     setMouseIsPressed(true);
-    setGrid(newGrid);
   };
 
   const handleMouseEnter = (row, col) => {
     if (!mouseIsPressed) return;
-    const newGrid = getNewGridWithWallToggled(grid, row, col);
-    setGrid(newGrid);
+    if (grabbed) {
+      const newGrid = getNewGridWithNewPoint(grid, row, col, grabbed);
+      setGrid(newGrid);
+    } else {
+      const newGrid = getNewGridWithWallToggled(grid, row, col);
+      setGrid(newGrid);
+    }
   };
 
   const handleMouseUp = () => {
     setMouseIsPressed(false);
+    setGrabbed("");
   };
 
   const animateShortestPath = (nodesInShortestPathOrder) => {
@@ -111,6 +153,7 @@ const PathfindingVisualizer = () => {
   };
 
   const visualizeDijkstra = () => {
+    ranAlgorithm = true;
     const startNode = grid[start_node_row][start_node_col];
     const finishNode = grid[finish_node_row][finish_node_col];
     const visitedNodesInOrder = dijkstra(grid, startNode, finishNode);
@@ -121,6 +164,7 @@ const PathfindingVisualizer = () => {
   //STATES
   const [grid, setGrid] = useState(initGrid());
   const [mouseIsPressed, setMouseIsPressed] = useState(false);
+  const [grabbed, setGrabbed] = useState("");
 
   return (
     <div className="pathfinder-ctr">
