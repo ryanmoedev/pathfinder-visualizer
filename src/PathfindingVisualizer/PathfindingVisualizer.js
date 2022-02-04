@@ -98,7 +98,6 @@ const PathfindingVisualizer = () => {
   };
 
   const clear = () => {
-    console.log("Clear pressed");
     for (let i = 0; i < grid.length; i++) {
       let row = grid[i];
       for (let j = 0; j < row.length; j++) {
