@@ -64,8 +64,9 @@ const PathfindingVisualizer = () => {
 
   const animateShortestPath = (nodesInShortestPathOrder) => {
     for (let i = 0; i < nodesInShortestPathOrder.length; i++) {
+      const node = nodesInShortestPathOrder[i];
+      if (node.isFinish || node.isStart) continue;
       setTimeout(() => {
-        const node = nodesInShortestPathOrder[i];
         document.getElementById(`node-${node.row}-${node.col}`).className = "node node-shortest-path";
       }, 50 * i);
     }
@@ -79,8 +80,9 @@ const PathfindingVisualizer = () => {
         }, 10 * i);
         return;
       }
+      const node = visitedNodesInOrder[i];
+      if (node.isFinish || node.isStart) continue;
       setTimeout(() => {
-        const node = visitedNodesInOrder[i];
         const nodeToChange = document.getElementById(`node-${node.row}-${node.col}`);
         nodeToChange.className = "node node-visited";
       }, 10 * i);
@@ -95,7 +97,16 @@ const PathfindingVisualizer = () => {
     animateDijkstra(visitedNodesInOrder, nodesInShortestPathOrder);
   };
 
-  const reset = () => {
+  const clear = () => {
+    console.log("Clear pressed");
+    for (let i = 0; i < grid.length; i++) {
+      let row = grid[i];
+      for (let j = 0; j < row.length; j++) {
+        if (grid[i][j].isStart || grid[i][j].isFinish) continue;
+        const nodeToChange = document.getElementById(`node-${i}-${j}`);
+        nodeToChange.className = "node";
+      }
+    }
     setGrid(initGrid());
   };
 
@@ -115,7 +126,9 @@ const PathfindingVisualizer = () => {
       <div className="button-ctr">
         <div className="small-button-ctr">
           <button>Random Wall</button>
-          <button>Clear</button>
+          <button className="clear-button" onClick={() => clear()}>
+            Clear
+          </button>
         </div>
         <button className="algo-button" onClick={() => visualizeDijkstra()}>
           Visualize Dijkstra's Algorithm
